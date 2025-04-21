@@ -1,6 +1,8 @@
 import os
 import shutil
 
+from block_markdown import extract_title, markdown_to_html_node
+
 
 def copy_directory(src_dir, dest_dir):
     # Remove destination directory if it exists
@@ -26,8 +28,45 @@ def copy_directory(src_dir, dest_dir):
             print(f"Copied {src_path} -> {dest_path}")
 
 
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+
+    # Read markdown content
+    with open(from_path, "r") as f:
+        markdown_content = f.read()
+
+    # Read template
+    with open(template_path, "r") as f:
+        template_content = f.read()
+
+    # Convert markdown to HTML
+    html_node = markdown_to_html_node(markdown_content)
+    html_content = html_node.to_html()
+
+    # Extract title
+    title = extract_title(markdown_content)
+
+    # Replace placeholders in template
+    final_html = template_content.replace("{{ Title }}", title)
+    final_html = final_html.replace("{{ Content }}", str(html_content))
+
+    # Ensure destination directory exists
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+
+    # Write the final HTML
+    with open(dest_path, "w") as f:
+        f.write(final_html)
+
+
 def main():
+    if os.path.exists("public"):
+        shutil.rmtree("public")
+
+    # Copy static files
     copy_directory("static", "public")
+
+    # Generate index page
+    generate_page("content/index.md", "template.html", "public/index.html")
 
 
 if __name__ == "__main__":
