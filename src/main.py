@@ -76,20 +76,23 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, bas
 
 
 def main():
-    if os.path.exists("public"):
-        shutil.rmtree("public")
+    dir_path_static = "./static"
+    dir_path_public = "./docs"
+    dir_path_content = "./content"
+    template_path = "./template.html"
+    basepath = argv[1] if len(argv) > 1 else "/"
+
+    if os.path.exists(dir_path_public):
+        shutil.rmtree(dir_path_public)
 
     # Copy static files
-    copy_directory("static", "public")
-
-    # grab the first CLI argument to the program. Save it as the basepath. If one isn't provided, default to /
-    basepath = argv[1] if len(argv) > 1 else "/"
+    copy_directory(dir_path_static, dir_path_public)
 
     # Generate index page
     # generate_page("content/index.md", "template.html", "public/index.html")
 
     # Generate pages recursively
-    generate_pages_recursive("content", "template.html", "docs", basepath)
+    generate_pages_recursive(dir_path_content, template_path, dir_path_public, basepath)
 
 
 if __name__ == "__main__":
